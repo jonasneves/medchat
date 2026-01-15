@@ -23,10 +23,10 @@ from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
 from llama_cpp.llama_chat_format import Gemma3ChatHandler
 
+# Set thread defaults if not specified (can be overridden via env)
 if not os.getenv("OPENBLAS_NUM_THREADS"):
-    os.environ["OPENBLAS_NUM_THREADS"] = "1"
-if not os.getenv("OMP_NUM_THREADS"):
-    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"  # Avoid BLAS thread contention
+# OMP_NUM_THREADS left to system default or explicit override
 
 
 @dataclass
@@ -166,6 +166,7 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
             "use_mmap": True,
             "n_batch": n_batch,
             "last_n_tokens_size": config.last_n_tokens_size,
+            "flash_attn": True,
             "verbose": True,
         }
 
