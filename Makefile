@@ -15,7 +15,7 @@ help:
 
 install:
 	cd frontend && npm install
-	pip install -r scripts/requirements.txt
+	pip3 install -r scripts/requirements.txt
 
 dev:
 	cd frontend && npm run dev
@@ -24,13 +24,13 @@ build:
 	cd frontend && npm run build
 
 run-backend:
-	cd backend && python server.py
+	cd backend && python3 server.py
 
 run-inference:
-	cd inference && python inference_server.py
+	cd inference && python3 inference_server.py
 
 setup-tunnel:
-	python scripts/setup_tunnel.py
+	python3 scripts/setup_tunnel.py
 
 docker-build:
 	docker build -f backend/Dockerfile -t medchat .
