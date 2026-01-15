@@ -1,38 +1,35 @@
 {
   "sources": [
     {
-      "name": "Wikimedia Commons",
-      "url": "https://commons.wikimedia.org/wiki/Category:Medical_X-ray_images",
-      "license": "CC BY-SA"
+      "name": "NIH ChestX-ray14",
+      "url": "https://nihcc.app.box.com/v/ChestXray-NIHCC",
+      "license": "CC0 Public Domain"
     }
   ],
   "examples": [
     {
       "id": "chest-normal",
-      "name": "Normal Chest",
+      "name": "Normal",
       "category": "Chest X-ray",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png",
-      "description": "Normal PA chest radiograph"
+      "image": "examples/00000001_000.png",
+      "description": "Normal chest radiograph - no findings"
     },
     {
-      "id": "chest-pneumonia",
-      "name": "Pneumonia",
+      "id": "chest-cardiomegaly",
+      "name": "Cardiomegaly",
       "category": "Chest X-ray",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Chest_X-ray_in_influenza_and_Haemophilus_influenzae_-_annotated.jpg",
-      "description": "Chest X-ray showing pneumonia"
+      "image": "examples/00000013_005.png",
+      "description": "Chest X-ray with cardiomegaly"
     },
     {
-      "id": "hand-xray",
-      "name": "Hand X-ray",
-      "category": "Skeletal",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/X-ray_of_normal_hand_by_dorridge_gp_-_cropped.jpg",
-      "description": "Normal hand radiograph"
+      "id": "chest-effusion",
+      "name": "Effusion",
+      "category": "Chest X-ray",
+      "image": "examples/00000132_002.png",
+      "description": "Chest X-ray with pleural effusion"
     }
   ],
   "prompts": {
-    "Chest X-ray": "Analyze this chest X-ray. Describe the cardiac silhouette, lung fields, and any abnormalities.",
-    "Skeletal": "Analyze this X-ray. Describe the bone structure and any findings.",
-    "Dermatology": "Examine this skin lesion. Describe its characteristics and any concerns.",
-    "Pathology": "Analyze this pathology image. What cellular features do you observe?"
+    "Chest X-ray": "Analyze this chest X-ray. Describe the cardiac silhouette, lung fields, and any abnormalities."
   }
 }
