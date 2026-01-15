@@ -1,0 +1,37 @@
+{
+  "sources": [
+    {
+      "name": "NIH ChestX-ray14",
+      "url": "https://www.kaggle.com/datasets/nih-chest-xrays/data",
+      "license": "CC0 Public Domain"
+    }
+  ],
+  "examples": [
+    {
+      "id": "chest-normal-1",
+      "name": "Normal Chest",
+      "category": "Chest X-ray",
+      "image": "/examples/00000001_000.png",
+      "description": "Normal frontal chest radiograph"
+    },
+    {
+      "id": "chest-cardiomegaly-1",
+      "name": "Cardiomegaly",
+      "category": "Chest X-ray",
+      "image": "/examples/00000003_000.png",
+      "description": "Chest X-ray showing cardiomegaly"
+    },
+    {
+      "id": "chest-effusion-1",
+      "name": "Pleural Effusion",
+      "category": "Chest X-ray",
+      "image": "/examples/00000011_000.png",
+      "description": "Chest X-ray with pleural effusion"
+    }
+  ],
+  "prompts": {
+    "Chest X-ray": "Analyze this chest X-ray. Describe the cardiac silhouette, lung fields, and any abnormalities.",
+    "Dermatology": "Examine this skin lesion. Describe its characteristics and any concerns.",
+    "Pathology": "Analyze this pathology image. What cellular features do you observe?"
+  }
+}

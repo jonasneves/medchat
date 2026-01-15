@@ -4,6 +4,7 @@ import Header from './components/Header';
 import ChatMessage from './components/ChatMessage';
 import ImageUpload from './components/ImageUpload';
 import PromptInput from './components/PromptInput';
+import ExampleImages from './components/ExampleImages';
 import { streamChat } from './hooks/useChat';
 
 export interface Message {
@@ -129,6 +130,14 @@ export default function App() {
     setPendingImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleExampleSelect = useCallback((imageBase64: string, prompt: string) => {
+    setPendingImages([imageBase64]);
+    // Auto-send after a brief delay to show the image
+    setTimeout(() => {
+      handleSend(prompt);
+    }, 100);
+  }, [handleSend]);
+
   return (
     <div className="h-full flex flex-col bg-slate-900 text-white">
       <Header status={modelStatus} />
@@ -185,14 +194,22 @@ export default function App() {
               compact
             />
           )}
-          <PromptInput
-            onSend={handleSend}
-            onImageAdd={handleImageAdd}
-            isGenerating={isGenerating}
-            onStop={handleStop}
-            disabled={modelStatus !== 'healthy'}
-            placeholder={modelStatus !== 'healthy' ? 'Connecting to MedGemma...' : 'Ask about the medical image...'}
-          />
+          <div className="flex items-end gap-2">
+            <ExampleImages
+              onSelect={handleExampleSelect}
+              disabled={modelStatus !== 'healthy' || isGenerating}
+            />
+            <div className="flex-1">
+              <PromptInput
+                onSend={handleSend}
+                onImageAdd={handleImageAdd}
+                isGenerating={isGenerating}
+                onStop={handleStop}
+                disabled={modelStatus !== 'healthy'}
+                placeholder={modelStatus !== 'healthy' ? 'Connecting to MedGemma...' : 'Ask about the medical image...'}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
