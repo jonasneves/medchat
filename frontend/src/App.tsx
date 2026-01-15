@@ -194,22 +194,20 @@ export default function App() {
               compact
             />
           )}
-          <div className="flex items-end gap-2">
-            <ExampleImages
-              onSelect={handleExampleSelect}
-              disabled={modelStatus !== 'healthy' || isGenerating}
-            />
-            <div className="flex-1">
-              <PromptInput
-                onSend={handleSend}
-                onImageAdd={handleImageAdd}
-                isGenerating={isGenerating}
-                onStop={handleStop}
-                disabled={modelStatus !== 'healthy'}
-                placeholder={modelStatus !== 'healthy' ? 'Connecting to MedGemma...' : 'Ask about the medical image...'}
+          <PromptInput
+            onSend={handleSend}
+            onImageAdd={handleImageAdd}
+            isGenerating={isGenerating}
+            onStop={handleStop}
+            disabled={modelStatus !== 'healthy'}
+            placeholder={modelStatus !== 'healthy' ? 'Connecting to MedGemma...' : 'Ask about the medical image...'}
+            examplesButton={
+              <ExampleImages
+                onSelect={handleExampleSelect}
+                disabled={modelStatus !== 'healthy' || isGenerating}
               />
-            </div>
-          </div>
+            }
+          />
         </div>
       </div>
     </div>
