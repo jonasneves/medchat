@@ -5,6 +5,8 @@ Cloudflare Tunnel Manager
 Core API client for managing Cloudflare Tunnels.
 """
 
+from __future__ import annotations
+
 import json
 import requests
 
