@@ -183,7 +183,11 @@ export default function App() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent pt-8 pb-4 px-4">
-        <div className="max-w-3xl mx-auto space-y-3">
+        <div className="max-w-3xl mx-auto space-y-2">
+          <ExampleImages
+            onSelect={handleExampleSelect}
+            disabled={modelStatus !== 'healthy' || isGenerating}
+          />
           {pendingImages.length > 0 && (
             <ImageUpload
               images={pendingImages}
@@ -198,12 +202,6 @@ export default function App() {
             onStop={handleStop}
             disabled={modelStatus !== 'healthy'}
             placeholder={modelStatus !== 'healthy' ? 'Connecting to MedGemma...' : 'Ask about the medical image...'}
-            examplesButton={
-              <ExampleImages
-                onSelect={handleExampleSelect}
-                disabled={modelStatus !== 'healthy' || isGenerating}
-              />
-            }
           />
         </div>
       </div>

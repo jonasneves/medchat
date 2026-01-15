@@ -37,7 +37,6 @@ interface PromptInputProps {
   onStop: () => void;
   disabled?: boolean;
   placeholder?: string;
-  examplesButton?: React.ReactNode;
 }
 
 export default function PromptInput({
@@ -47,7 +46,6 @@ export default function PromptInput({
   onStop,
   disabled,
   placeholder = 'Ask about the medical image...',
-  examplesButton,
 }: PromptInputProps) {
   const [input, setInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,18 +116,15 @@ export default function PromptInput({
       />
 
       <div className="flex items-end gap-2 bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 p-2">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || isGenerating}
-            className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50"
-            title="Upload medical image"
-          >
-            <ImagePlus size={20} />
-          </button>
-          {examplesButton}
-        </div>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled || isGenerating}
+          className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50"
+          title="Upload medical image"
+        >
+          <ImagePlus size={20} />
+        </button>
 
         <textarea
           value={input}
