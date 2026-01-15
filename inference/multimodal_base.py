@@ -21,7 +21,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from huggingface_hub import hf_hub_download
 from llama_cpp import Llama
-from llama_cpp.llama_chat_format import Gemma3ChatHandler
+from llama_cpp.llama_chat_format import Llava15ChatHandler
 
 if not os.getenv("OPENBLAS_NUM_THREADS"):
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -137,7 +137,7 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
     )
 
     llm: Optional[Llama] = None
-    chat_handler: Optional[Gemma3ChatHandler] = None
+    chat_handler: Optional[Llava15ChatHandler] = None
     stop_tokens = ["<end_of_turn>", "<eos>"]
     max_concurrent = int(os.getenv("MAX_CONCURRENT", "1"))
     inference_lock = asyncio.Semaphore(max_concurrent)
@@ -150,7 +150,7 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
         clip_path = None
         if config.clip_repo and config.clip_file:
             clip_path = _download_model(config.clip_repo, config.clip_file, "clip")
-            chat_handler = Gemma3ChatHandler(clip_model_path=clip_path)
+            chat_handler = Llava15ChatHandler(clip_model_path=clip_path)
 
         n_ctx = int(os.getenv("N_CTX", str(config.default_n_ctx)))
         n_threads = int(os.getenv("N_THREADS", str(config.default_n_threads)))
