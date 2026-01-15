@@ -5,8 +5,7 @@ MedChat Tunnel Setup
 Creates Cloudflare tunnel for medchat.neevs.io
 
 Usage:
-    export CLOUDFLARE_API_TOKEN="your-token"
-    export CLOUDFLARE_ACCOUNT_ID="your-account-id"
+    # Create .env file with CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
     python scripts/setup_tunnel.py --domain neevs.io --subdomain medchat
 """
 
@@ -15,8 +14,14 @@ import sys
 import json
 import subprocess
 import argparse
+from pathlib import Path
 
+from dotenv import load_dotenv
 from cloudflare_tunnel_manager import CloudflareTunnelManager
+
+# Load .env from project root
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
 
 TUNNEL_NAME = "medchat"
 SERVICE_PORT = 8500
