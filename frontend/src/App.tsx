@@ -20,6 +20,25 @@ export default function App() {
   const [modelStatus, setModelStatus] = useState<'loading' | 'healthy' | 'error'>('loading');
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const isNearBottomRef = useRef(true);
+
+  const checkIfNearBottom = () => {
+    if (!scrollRef.current) return true;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    return scrollHeight - scrollTop - clientHeight < 100;
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      isNearBottomRef.current = checkIfNearBottom();
+    };
+
+    el.addEventListener('scroll', handleScroll);
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const checkHealth = async () => {
@@ -41,7 +60,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && isNearBottomRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
@@ -59,6 +78,7 @@ export default function App() {
     setMessages(prev => [...prev, userMessage]);
     setPendingImages([]);
     setIsGenerating(true);
+    isNearBottomRef.current = true;
 
     const controller = new AbortController();
     abortRef.current = controller;
