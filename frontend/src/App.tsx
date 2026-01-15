@@ -66,18 +66,19 @@ export default function App() {
     }
   }, [messages]);
 
-  const handleSend = useCallback(async (text: string) => {
-    if (!text.trim() && pendingImages.length === 0) return;
+  const handleSend = useCallback(async (text: string, images?: string[]) => {
+    const imagesToSend = images || pendingImages;
+    if (!text.trim() && imagesToSend.length === 0) return;
     if (isGenerating) return;
 
     const userMessage: Message = {
       role: 'user',
       content: text,
-      images: pendingImages.length > 0 ? [...pendingImages] : undefined,
+      images: imagesToSend.length > 0 ? [...imagesToSend] : undefined,
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setPendingImages([]);
+    if (!images) setPendingImages([]);
     setIsGenerating(true);
     isNearBottomRef.current = true;
 
@@ -131,11 +132,7 @@ export default function App() {
   };
 
   const handleExampleSelect = useCallback((imageBase64: string, prompt: string) => {
-    setPendingImages([imageBase64]);
-    // Auto-send after a brief delay to show the image
-    setTimeout(() => {
-      handleSend(prompt);
-    }, 100);
+    handleSend(prompt, [imageBase64]);
   }, [handleSend]);
 
   return (
