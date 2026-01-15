@@ -57,6 +57,9 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.medchat == 'true' || needs.detect-changes.outputs.inference == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
