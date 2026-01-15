@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronUp, ImageIcon, ExternalLink } from 'lucide-react';
 
 interface Example {
@@ -32,6 +32,28 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
   const [loading, setLoading] = useState<string | null>(null);
   const [config, setConfig] = useState<ExampleConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     fetch(resolveUrl('examples/config.json'))
@@ -79,7 +101,7 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
   const categories = [...new Set(config.examples.map(e => e.category))];
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
