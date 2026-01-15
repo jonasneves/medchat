@@ -2,4 +2,5 @@ fastapi>=0.104.0
 uvicorn>=0.24.0
 pydantic>=2.0.0
 huggingface-hub>=0.19.0
-llama-cpp-python>=0.2.0
+# llama-cpp-python from fork with Gemma3ChatHandler (PR #1989)
+llama-cpp-python @ git+https://github.com/kossum/llama-cpp-python.git@main
