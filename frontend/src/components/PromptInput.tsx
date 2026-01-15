@@ -1,6 +1,35 @@
 import { useState, useRef, useCallback } from 'react';
 import { Send, Square, ImagePlus } from 'lucide-react';
 
+const MAX_IMAGE_SIZE = 896; // MedGemma native size
+
+function compressImage(dataUrl: string, maxSize: number): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+
+      // Only resize if larger than maxSize
+      if (width > maxSize || height > maxSize) {
+        const ratio = Math.min(maxSize / width, maxSize / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Use JPEG for smaller size, quality 0.85 is good balance
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = dataUrl;
+  });
+}
+
 interface PromptInputProps {
   onSend: (text: string) => void;
   onImageAdd: (base64: string) => void;
@@ -36,45 +65,35 @@ export default function PromptInput({
     }
   };
 
+  const processImage = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const result = ev.target?.result;
+      if (typeof result === 'string') {
+        const compressed = await compressImage(result, MAX_IMAGE_SIZE);
+        onImageAdd(compressed);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [onImageAdd]);
+
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const result = ev.target?.result;
-        if (typeof result === 'string') {
-          onImageAdd(result);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    Array.from(files).forEach(processImage);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, [onImageAdd]);
+  }, [processImage]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
-
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const result = ev.target?.result;
-        if (typeof result === 'string') {
-          onImageAdd(result);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  }, [onImageAdd]);
+    Array.from(e.dataTransfer.files).forEach(processImage);
+  }, [processImage]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

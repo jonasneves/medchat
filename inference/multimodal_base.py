@@ -167,6 +167,8 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
             "n_batch": n_batch,
             "last_n_tokens_size": config.last_n_tokens_size,
             "flash_attn": True,
+            "type_k": 8,  # KV cache quantization (q8_0) - reduces memory bandwidth
+            "type_v": 8,
             "verbose": True,
         }
 
