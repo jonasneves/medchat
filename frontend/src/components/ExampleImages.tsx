@@ -56,22 +56,13 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
   }, [isOpen]);
 
   useEffect(() => {
-    const url = resolveUrl('examples/config.json');
-    console.log('Fetching examples config from:', url);
-    fetch(url)
+    fetch(resolveUrl('examples/config.json'))
       .then(res => {
-        console.log('Config response:', res.status, res.ok);
         if (!res.ok) throw new Error('Not found');
         return res.json();
       })
-      .then(data => {
-        console.log('Config loaded:', data.examples?.length, 'examples');
-        setConfig(data);
-      })
-      .catch(err => {
-        console.error('Config fetch failed:', err);
-        setConfig(null);
-      });
+      .then(setConfig)
+      .catch(() => setConfig(null));
   }, []);
 
   const handleSelect = async (example: Example) => {
