@@ -1,4 +1,17 @@
-.PHONY: install dev build run-backend run-inference setup-tunnel clean
+.PHONY: help install dev build run-backend run-inference setup-tunnel clean
+
+help:
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Targets:"
+	@echo "  install        Install frontend and script dependencies"
+	@echo "  dev            Run frontend dev server"
+	@echo "  build          Build frontend for production"
+	@echo "  run-backend    Run backend server (port 8500)"
+	@echo "  run-inference  Run MedGemma inference server (port 8400)"
+	@echo "  setup-tunnel   Create Cloudflare tunnel (requires .env)"
+	@echo "  docker-build   Build Docker images"
+	@echo "  clean          Remove build artifacts"
 
 install:
 	cd frontend && npm install
