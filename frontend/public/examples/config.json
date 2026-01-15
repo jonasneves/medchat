@@ -1,8 +1,37 @@
 {
-  "sources": [],
-  "examples": [],
+  "sources": [
+    {
+      "name": "Wikimedia Commons",
+      "url": "https://commons.wikimedia.org/wiki/Category:Medical_X-ray_images",
+      "license": "CC BY-SA"
+    }
+  ],
+  "examples": [
+    {
+      "id": "chest-normal",
+      "name": "Normal Chest",
+      "category": "Chest X-ray",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png",
+      "description": "Normal PA chest radiograph"
+    },
+    {
+      "id": "chest-pneumonia",
+      "name": "Pneumonia",
+      "category": "Chest X-ray",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Chest_X-ray_in_influenza_and_Haemophilus_influenzae_-_annotated.jpg",
+      "description": "Chest X-ray showing pneumonia"
+    },
+    {
+      "id": "hand-xray",
+      "name": "Hand X-ray",
+      "category": "Skeletal",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/1/10/X-ray_of_normal_hand_by_dorridge_gp_-_cropped.jpg",
+      "description": "Normal hand radiograph"
+    }
+  ],
   "prompts": {
     "Chest X-ray": "Analyze this chest X-ray. Describe the cardiac silhouette, lung fields, and any abnormalities.",
+    "Skeletal": "Analyze this X-ray. Describe the bone structure and any findings.",
     "Dermatology": "Examine this skin lesion. Describe its characteristics and any concerns.",
     "Pathology": "Analyze this pathology image. What cellular features do you observe?"
   }
