@@ -20,6 +20,13 @@ interface ExampleImagesProps {
   disabled?: boolean;
 }
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+
+function resolveUrl(path: string): string {
+  if (path.startsWith('http')) return path;
+  return `${BASE_URL}${path.replace(/^\//, '')}`;
+}
+
 export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
@@ -27,10 +34,16 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/examples/config.json')
-      .then(res => res.json())
+    fetch(resolveUrl('examples/config.json'))
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
+      })
       .then(setConfig)
-      .catch(() => setError('Failed to load examples'));
+      .catch(() => {
+        // Config not available - hide the component
+        setConfig(null);
+      });
   }, []);
 
   const handleSelect = async (example: Example) => {
@@ -38,7 +51,7 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
 
     setLoading(example.id);
     try {
-      const response = await fetch(example.image);
+      const response = await fetch(resolveUrl(example.image));
       if (!response.ok) throw new Error('Image not found');
 
       const blob = await response.blob();
@@ -103,7 +116,7 @@ export default function ExampleImages({ onSelect, disabled }: ExampleImagesProps
                                hover:ring-2 hover:ring-emerald-500 transition-all"
                   >
                     <img
-                      src={example.image}
+                      src={resolveUrl(example.image)}
                       alt={example.name}
                       className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
                       onError={(e) => {
