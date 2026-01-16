@@ -43,7 +43,7 @@ gh workflow run deploy.yml
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| N_CTX | 8192 | Context window size |
+| N_CTX | 4096 | Context window size |
 | N_THREADS | 4 | CPU threads for inference |
 | N_BATCH | 512 | Batch size for prompt processing |
 

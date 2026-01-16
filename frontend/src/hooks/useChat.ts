@@ -41,7 +41,7 @@ export async function streamChat(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: apiMessages,
-      max_tokens: 2048,
+      max_tokens: 1024,
       temperature: 0.7,
       stream: true,
     }),
