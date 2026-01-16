@@ -19,8 +19,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY inference/requirements.txt .
 
-# Build with OpenBLAS, OpenMP, AVX2, Flash Attention for x86_64
-RUN CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DGGML_OPENMP=ON -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DLLAMA_FLASH_ATTN=ON" \
+# Build with OpenBLAS, OpenMP, NEON, Flash Attention for ARM64
+RUN CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DGGML_OPENMP=ON -DGGML_NEON=ON -DLLAMA_FLASH_ATTN=ON" \
     pip3 install --no-cache-dir -r requirements.txt
 
 # Runtime stage
