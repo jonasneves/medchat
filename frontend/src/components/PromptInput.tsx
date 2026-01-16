@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Square, ImagePlus } from 'lucide-react';
 
 const MAX_IMAGE_SIZE = 896; // MedGemma native size
@@ -49,6 +49,22 @@ export default function PromptInput({
 }: PromptInputProps) {
   const [input, setInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement === textareaRef.current ||
+        e.ctrlKey || e.metaKey || e.altKey ||
+        e.key.length !== 1
+      ) return;
+
+      textareaRef.current?.focus();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +143,7 @@ export default function PromptInput({
         </button>
 
         <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
