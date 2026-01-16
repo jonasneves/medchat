@@ -83,7 +83,7 @@ jobs:
 
       - name: Setup Cloudflare Tunnel
         run: |
-          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared
           chmod +x cloudflared
 
       - name: Wait for MedGemma model to load
