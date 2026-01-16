@@ -60,6 +60,7 @@ jobs:
             sudo mkswap /swapfile
           fi
           sudo swapon /swapfile 2>/dev/null || true
+          sudo sysctl vm.swappiness=1
           free -h
 
       - name: Login to GitHub Container Registry
