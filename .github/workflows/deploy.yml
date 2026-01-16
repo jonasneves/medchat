@@ -2,6 +2,20 @@ name: Deploy MedChat
 
 on:
   workflow_dispatch:
+    inputs:
+      duration_hours:
+        description: 'Duration (max 5.5 hours)'
+        required: false
+        default: '5'
+        type: string
+      auto_restart:
+        description: 'Auto-restart before timeout'
+        required: false
+        default: true
+        type: boolean
+
+  repository_dispatch:
+    types: [restart-deploy]
 
 env:
   REGISTRY: ghcr.io
@@ -9,7 +23,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 360
+    timeout-minutes: 350
     permissions:
       actions: write
       contents: read
@@ -123,13 +137,92 @@ jobs:
           curl -sf http://localhost:8500/api/health || echo "Backend health check"
           curl -sf http://localhost:8400/health || echo "Inference health check"
 
-      - name: Keep alive
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Monitor
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          echo "MedChat is running..."
-          echo "Inference: http://localhost:8400"
-          echo "Backend: http://localhost:8500"
+          cleanup() {
+            docker stop medchat medgemma-inference 2>/dev/null || true
+            docker rm medchat medgemma-inference 2>/dev/null || true
+            exit 0
+          }
+          trap cleanup SIGTERM SIGINT
+
+          DURATION_HOURS="${{ github.event.client_payload.duration_hours || github.event.inputs.duration_hours || '5' }}"
+          DURATION=$((DURATION_HOURS * 3600))
+          RESTART_THRESHOLD=$((DURATION - 360))
+          START_TIME=$(date +%s)
+          RESTART_TRIGGERED=false
+
+          AUTO_RESTART="${{ github.event.client_payload.auto_restart || github.event.inputs.auto_restart }}"
+          if [ -z "$AUTO_RESTART" ]; then
+            AUTO_RESTART="true"
+          fi
+
+          echo "Duration: ${DURATION_HOURS}h | Auto-restart: $AUTO_RESTART"
+
           while true; do
-            sleep 300
-            echo "$(date): Still running..."
-            docker ps
+            ELAPSED=$(($(date +%s) - START_TIME))
+            REMAINING=$((DURATION - ELAPSED))
+
+            INFERENCE_STATUS=$(docker inspect -f '{{.State.Status}}' medgemma-inference 2>/dev/null || echo "stopped")
+            BACKEND_STATUS=$(docker inspect -f '{{.State.Status}}' medchat 2>/dev/null || echo "stopped")
+
+            printf "[%s] Inference: %s | Backend: %s | %dm elapsed | %dm remaining\n" \
+              "$(date '+%H:%M:%S')" "$INFERENCE_STATUS" "$BACKEND_STATUS" "$((ELAPSED/60))" "$((REMAINING/60))"
+
+            [ "$INFERENCE_STATUS" != "running" ] && docker start medgemma-inference
+            [ "$BACKEND_STATUS" != "running" ] && docker start medchat
+
+            if [ "$ELAPSED" -gt "$RESTART_THRESHOLD" ] && [ "$RESTART_TRIGGERED" = "false" ]; then
+              if [ "$AUTO_RESTART" = "true" ]; then
+                echo ""
+                echo "=========================================="
+                echo "Triggering restart workflow..."
+                echo "=========================================="
+
+                if [ -z "$APP_TOKEN" ]; then
+                  echo "ERROR: APP_TOKEN not available"
+                  RESTART_TRIGGERED=true
+                else
+                  RESPONSE=$(curl -sX POST \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "Authorization: Bearer $APP_TOKEN" \
+                    -H "X-GitHub-Api-Version: 2022-11-28" \
+                    https://api.github.com/repos/${{ github.repository }}/dispatches \
+                    -d "{\"event_type\":\"restart-deploy\",\"client_payload\":{\"duration_hours\":\"$DURATION_HOURS\",\"auto_restart\":$([ \"$AUTO_RESTART\" = \"true\" ] && echo \"true\" || echo \"false\")}}" \
+                    -w "\nHTTP_STATUS:%{http_code}" 2>&1)
+
+                  HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_STATUS:" | cut -d: -f2)
+
+                  if [ "$HTTP_CODE" = "204" ]; then
+                    echo "SUCCESS: Restart triggered!"
+                    echo "Waiting 90s for new instance to start..."
+                    sleep 90
+                  else
+                    echo "ERROR: Failed to trigger restart (HTTP $HTTP_CODE)"
+                  fi
+
+                  RESTART_TRIGGERED=true
+                fi
+              fi
+            fi
+
+            [ $ELAPSED -gt $DURATION ] && break
+            sleep 30
           done
+
+          cleanup
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          docker logs medgemma-inference 2>&1 | tail -100
+          docker logs medchat 2>&1 | tail -50
