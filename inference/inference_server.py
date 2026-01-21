@@ -16,12 +16,12 @@ config = MultimodalModelConfig(
     openai_model_id="medgemma-1.5-4b-it",
     owned_by="google",
     default_repo="unsloth/medgemma-1.5-4b-it-GGUF",
-    default_file="medgemma-1.5-4b-it-Q5_K_S.gguf",
+    default_file="medgemma-1.5-4b-it-Q4_K_M.gguf",
     clip_repo="unsloth/medgemma-1.5-4b-it-GGUF",
     clip_file="mmproj-F16.gguf",
     default_n_ctx=4096,
     default_n_threads=4,
-    n_batch=512,
+    n_batch=1024,
 )
 
 app = create_multimodal_app(config)
