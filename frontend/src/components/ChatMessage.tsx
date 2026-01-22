@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, User, AlertTriangle, X } from 'lucide-react';
+import { Bot, User, AlertTriangle, X, ChevronDown, ChevronRight, Brain } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -12,6 +12,7 @@ interface ChatMessageProps {
 export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [showThinking, setShowThinking] = useState(false);
 
   useEffect(() => {
     if (!expandedImage) return;
@@ -78,12 +79,34 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
 
+          {!isUser && message.thinking && (
+            <div className="mb-3">
+              <button
+                onClick={() => setShowThinking(!showThinking)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-300 transition-colors"
+              >
+                {showThinking ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                <Brain size={14} />
+                <span>Reasoning</span>
+              </button>
+              {showThinking && (
+                <div className="mt-2 p-3 bg-slate-900/50 border border-slate-700/50 rounded-lg text-xs text-slate-400">
+                  <div className="prose prose-invert prose-xs max-w-none opacity-80">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.thinking}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="prose prose-invert prose-sm max-w-none markdown-content">
             {isUser ? (
               <p>{message.content}</p>
             ) : (
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
-                {message.content || '...'}
+                {message.content || (message.thinking ? '' : '...')}
               </ReactMarkdown>
             )}
           </div>

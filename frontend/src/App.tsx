@@ -10,6 +10,7 @@ import { streamChat } from './hooks/useChat';
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
+  thinking?: string;
   images?: string[];
   error?: boolean;
 }
@@ -86,16 +87,50 @@ export default function App() {
     abortRef.current = controller;
 
     try {
-      let assistantContent = '';
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      let thinkingContent = '';
+      let responseContent = '';
+      let isThinking = false;
+      let thinkingEnded = false;
+      setMessages(prev => [...prev, { role: 'assistant', content: '', thinking: '' }]);
 
       await streamChat(
         [...messages, userMessage],
-        (chunk) => {
-          assistantContent += chunk;
+        (chunk, isEmptyChunk) => {
+          // Detect thinking start: first non-empty chunk is "thought"
+          if (!isThinking && !thinkingEnded && chunk === 'thought') {
+            isThinking = true;
+            return; // Don't add "thought" to content
+          }
+
+          // Detect thinking end: empty chunk while in thinking mode
+          if (isThinking && isEmptyChunk) {
+            isThinking = false;
+            thinkingEnded = true;
+            return;
+          }
+
+          // Skip the newline after "thought"
+          if (isThinking && thinkingContent === '' && chunk === '\n') {
+            return;
+          }
+
+          // Accumulate content
+          if (isThinking) {
+            thinkingContent += chunk;
+          } else if (thinkingEnded) {
+            responseContent += chunk;
+          } else {
+            // No thinking mode detected, just accumulate as response
+            responseContent += chunk;
+          }
+
           setMessages(prev => {
             const updated = [...prev];
-            updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
+            updated[updated.length - 1] = {
+              role: 'assistant',
+              content: responseContent,
+              thinking: thinkingContent || undefined,
+            };
             return updated;
           });
         },

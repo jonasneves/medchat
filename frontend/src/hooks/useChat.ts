@@ -31,7 +31,7 @@ function buildApiMessages(messages: Message[]): Array<{ role: string; content: s
 
 export async function streamChat(
   messages: Message[],
-  onChunk: (chunk: string) => void,
+  onChunk: (chunk: string, isEmptyChunk?: boolean) => void,
   signal?: AbortSignal
 ): Promise<void> {
   const apiMessages = buildApiMessages(messages);
@@ -80,8 +80,9 @@ export async function streamChat(
           throw new Error(parsed.error);
         }
         const content = parsed.choices?.[0]?.delta?.content;
-        if (content) {
-          onChunk(content);
+        if (content !== undefined) {
+          // Signal empty chunks (thinking end marker) vs actual content
+          onChunk(content, content === '');
         }
       } catch (e) {
         if (e instanceof SyntaxError) continue;
