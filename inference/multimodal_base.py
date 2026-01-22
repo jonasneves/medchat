@@ -66,7 +66,9 @@ class MultimodalGenerateRequest(BaseModel):
     prompt: Optional[str] = None
     messages: Optional[List[MultimodalMessage]] = None
     max_tokens: int = 2048
-    temperature: float = 0.0  # Greedy decoding per Google's recommendation
+    temperature: float = 1.0  # Reasoning mode (undocumented, per Unsloth discovery)
+    top_p: float = 0.95
+    min_p: float = 0.0
     stream: bool = False
     include_perf: bool = False
 
@@ -257,6 +259,8 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
         messages: list,
         max_tokens: int,
         temperature: float,
+        top_p: float,
+        min_p: float,
         *,
         include_perf: bool,
     ):
@@ -271,6 +275,8 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
                     messages=messages,
                     max_tokens=max_tokens,
                     temperature=temperature,
+                    top_p=top_p,
+                    min_p=min_p,
                     stream=True,
                     stop=stop_tokens,
                 )
@@ -343,6 +349,8 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
                         messages,
                         request.max_tokens,
                         request.temperature,
+                        request.top_p,
+                        request.min_p,
                         include_perf=include_perf,
                     ),
                     media_type="text/event-stream",
@@ -355,6 +363,8 @@ def create_multimodal_app(config: MultimodalModelConfig) -> FastAPI:
                     messages=messages,
                     max_tokens=request.max_tokens,
                     temperature=request.temperature,
+                    top_p=request.top_p,
+                    min_p=request.min_p,
                     stop=stop_tokens,
                 )
 
